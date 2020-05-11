@@ -1,3 +1,14 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MATLAB Code for epidemic simulations with the SIDARTHE model in the work
+% The parameter estimated by NSGA-G
+% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Kazakhstan
+% the original SIDARTHE code is published by Giulia Giordano et. al, April 5, 2020
+% 
+%  
+% Contact: trung-dung.le@irisa.fr
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = initParameter()
 alfa=0.45842115176255355;
 beta=0.038780002134314255;

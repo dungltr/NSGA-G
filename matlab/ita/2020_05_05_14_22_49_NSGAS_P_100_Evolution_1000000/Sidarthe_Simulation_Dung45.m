@@ -1,12 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MATLAB Code for epidemic simulations with the SIDARTHE model in the work
-%
-% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Italy
-% by Giulia Giordano, Franco Blanchini, Raffaele Bruno, Patrizio Colaneri, Alessandro Di Filippo, Angela Di Matteo, Marta Colaneri
+% The parameter estimated by NSGA-G
+% Modelling the COVID-19 epidemic and implementation of population-wide interventions in Kazakhstan
+% the original SIDARTHE code is published by Giulia Giordano et. al, April 5, 2020
 % 
-% Giulia Giordano, April 5, 2020
-% Contact: giulia.giordano@unitn.it
+%  
+% Contact: trung-dung.le@irisa.fr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -49,88 +49,25 @@ Terapia_intensiva = [26 23 35 36 56 64 105 140 166 229 295 351 462 567 650 733 8
 Orizzonte = 47;
 
 % Plot yes/no: SET TO 1 IF PDF FIGURES MUST BE GENERATED, 0 OTHERWISE
-plotPDF = 1;
+plotPDF = 0;
 
 % Time-step for Euler discretisation of the continuous-time system
 step=0.01;
 [alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = initParameter()
-%{
-% Transmission rate due to contacts with UNDETECTED asymptomatic infected
-alfa=0.5669;
-% Transmission rate due to contacts with DETECTED asymptomatic infected
-beta=0.2180;
-% Transmission rate due to contacts with UNDETECTED symptomatic infected
-gamma=0.9665;
-% Transmission rate due to contacts with DETECTED symptomatic infected
-delta=0.7980;
-
-% Detection rate for ASYMPTOMATIC
-epsilon=0.0553;
-% Detection rate for SYMPTOMATIC
-theta=0.0896;
-
-% Worsening rate: UNDETECTED asymptomatic infected becomes symptomatic
-zeta=0.9663;
-% Worsening rate: DETECTED asymptomatic infected becomes symptomatic
-eta=0.3360;
-
-% Worsening rate: UNDETECTED symptomatic infected develop life-threatening
-% symptoms
-mu=0.6582;
-% Worsening rate: DETECTED symptomatic infected develop life-threatening
-% symptoms
-nu=0.1744;
-
-% Mortality rate for infected with life-threatening symptoms
-tau=0.7482;
-
-% Recovery rate for undetected asymptomatic infected
-lambda=0.4542;
-% Recovery rate for detected asymptomatic infected
-rho=0.0885;
-% Recovery rate for undetected symptomatic infected
-kappa=0.5546;
-% Recovery rate for detected symptomatic infected
-xi=0.7867;
-% Recovery rate for life-threatened symptomatic infected
-sigma=0.1185;
-%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFINITIONS
-%{
-function R0_test = calculate1(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
-R0_test = alfa/r1+beta*epsilon/(r1*r2)+gamma*zeta/(r1*r3)+delta*eta*epsilon/(r1*r2*r4)+delta*zeta*theta/(r1*r3*r4)
-end
-function R0_test = calculate2(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
-R0_test = (alfa*r2*r3*r4+epsilon*beta*r3*r4+gamma*zeta*r2*r4+delta*eta*epsilon*r3+delta*zeta*theta*r2)/(r1*r2*r3*r4)
-end
-function [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau)
-r1=epsilon+zeta+lambda;
-r2=eta+rho;
-r3=theta+mu+kappa;
-r4=nu+xi;
-r5=sigma+tau;
-end
-%}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Parameters
-%{
-r1=epsilon+zeta+lambda;
-r2=eta+rho;
-r3=theta+mu+kappa;
-r4=nu+xi;
-r5=sigma+tau;
-%}
+
 [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
 
 % Initial R0
-%R0_iniziale=alfa/r1+beta*epsilon/(r1*r2)+gamma*zeta/(r1*r3)+delta*eta*epsilon/(r1*r2*r4)+delta*zeta*theta/(r1*r3*r4)
 R0_iniziale = calculate1(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
 
 % Time horizon
-%t=1:step:Orizzonte; % old value is Orizzonte
 t=1:step:Orizzonte;
 
 % Vectors for time evolution of variables
@@ -198,7 +135,6 @@ for i=2:length(t)
 
     if (i>4/step) % Basic social distancing (awareness, schools closed)
         %[alfa, gamma, beta, delta] = Day4()
-        %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(2);
         if plottato == 0 % Compute the new R0
             [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
             R0_primemisure = calculate1(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
@@ -209,7 +145,6 @@ for i=2:length(t)
     if (i>12/step)
         % Screening limited to / focused on symptomatic subjects
         %epsilon = Day12()
-        %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(11);
         if plottato1 == 0
             [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
             R0_primemisureeps = calculate1(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
@@ -220,7 +155,6 @@ for i=2:length(t)
 
     if (i>22/step) % Social distancing: lockdown, mild effect
         %[alfa, beta, gamma, delta, mu, nu, zeta, eta, lambda, rho, kappa, xi, sigma] = Day22()   
-        %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(21);  
         if plottato_bis == 0 % Compute the new R0
             [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
             R0_secondemisure = calculate2(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
@@ -231,7 +165,6 @@ for i=2:length(t)
    
     if (i>28/step) % Social distancing: lockdown, strong effect
         %[alfa, gamma] = Day28()
-        %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(27);
         if plottato_tris == 0 % Compute the new R0
             [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
             R0_terzemisure = calculate2(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
@@ -241,19 +174,12 @@ for i=2:length(t)
    
     if (i>38/step) % Broader diagnosis campaign
         %[epsilon, rho, kappa, xi, sigma, zeta, eta] = Day38()
-        %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(37);
         if plottato_quat == 0 % Compute the new R0
             [r1,r2,r3,r4,r5] = calParameter(epsilon,zeta,lambda,eta,rho,theta,mu,kappa,nu,xi,sigma,tau);
             R0_quartemisure = calculate2(alfa,r1,beta,epsilon,r2,gamma,zeta,r3,delta,eta,r4,theta)
             plottato_quat = 1;
         end
     end
-    
-
-   %if (i > 48/step)
-   %[alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(41);
-   %end 
-    % Compute the system evolution
     
     B=[-alfa*x(2)-beta*x(3)-gamma*x(4)-delta*x(5) 0 0 0 0 0 0 0 0 0;
         alfa*x(2)+beta*x(3)+gamma*x(4)+delta*x(5) -(epsilon+zeta+lambda) 0 0 0 0 0 0 0 0;
@@ -335,7 +261,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 24 16]);
     set(gcf, 'PaperSize', [24 16]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['PanoramicaEpidemiaRealevsPercepita.pdf'])
-    print -djpg PanoramicaEpidemiaRealevsPercepitaF1.jpg
+    %print -djpg PanoramicaEpidemiaRealevsPercepitaF1.jpg
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -358,7 +284,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 24 16]);
     set(gcf, 'PaperSize', [24 16]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['SuddivisioneInfetti.pdf'])
-    print -djpg SuddivisioneInfettiF2.jpg
+    %print -djpg SuddivisioneInfettiF2.jpg
 end
 %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -388,7 +314,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['CasiTotali.pdf'])
-    print -djpg CasiTotaliF3.jpg
+    %print -djpg CasiTotaliF3.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 4
@@ -416,7 +342,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['Guariti_diagnosticati.pdf'])
-    print -djpg Guariti_diagnosticatiF4.jpg
+    %print -djpg Guariti_diagnosticatiF4.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 5
@@ -444,7 +370,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['Morti.pdf'])
-    print -djpg MortiF5.jpg
+    %print -djpg MortiF5.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 6
@@ -472,7 +398,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['Positivi_diagnosticati.pdf'])
-    print -djpg Positivi_diagnosticatiF6.jpg
+    %print -djpg Positivi_diagnosticatiF6.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 7
@@ -500,7 +426,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['InfettiAsintomatici_diagnosticati.pdf'])
-    print -djpg InfettiAsintomatici_diagnosticatiF7.jpg
+    %print -djpg InfettiAsintomatici_diagnosticatiF7.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 8
@@ -528,7 +454,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_ricoverati.pdf'])
-    print -djpg InfettiSintomatici_diagnosticati_ricoveratiF8.jpg
+    %print -djpg InfettiSintomatici_diagnosticati_ricoveratiF8.jpg
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Figure 9
@@ -557,7 +483,7 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['InfettiNonGravi_diagnosticati.pdf'])
-    print -djpg InfettiNonGravi_diagnosticatiF9.jpg
+    %print -djpg InfettiNonGravi_diagnosticatiF9.jpg
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -586,6 +512,6 @@ if plotPDF==1
     set(gcf, 'PaperPosition', [0 0 16 10]);
     set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
     print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_terapiaintensiva.pdf'])
-    print -djpg InfettiSintomatici_diagnosticati_terapiaintensivaF10.jpg
+    %print -djpg InfettiSintomatici_diagnosticati_terapiaintensivaF10.jpg
 end
 
