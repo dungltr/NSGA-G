@@ -9,7 +9,7 @@ The data is taken from the website[5].
 2. With kazakhstan: src/sida/ExperimentTotal.java
 # Simualtion: 
 1. Italia: matlab/ita/code/Sidarthe_Simulation_Dung45.m
-2. Kazakhstan: matlab/kaz/code/Sidarthe_Simulation_Dung39.m
+2. Kazakhstan: matlab/kaz/code/Sidarthe_Simulation_Dung49.m
 # Caution
 1. These code are using to publish into a journal. Hence, you are not allowed to reuse them to publish to anywhere.
 2. You are ot allowed to commercialize or monetize this code in any form.
