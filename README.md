@@ -12,7 +12,7 @@ The data is taken from the website[5].
 2. Kazakhstan: matlab/kaz/code/Sidarthe_Simulation_Dung49.m
 # Caution
 1. These code are using to publish into a journal. Hence, you are not allowed to reuse them to publish to anywhere.
-2. You are ot allowed to commercialize or monetize this code in any form.
+2. You are not allowed to commercialize or monetize this code in any form.
 # Reference
 1. https://www.nature.com/articles/s41591-020-0883-7
 2. https://ieeexplore.ieee.org/document/8622148
