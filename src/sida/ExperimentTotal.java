@@ -17,8 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static sida.Experiment.*;
-import static sida.ExperimentPeriod.storeMFile39;
-import static sida.ExperimentPeriod.storeMFile45;
+import static sida.ExperimentPeriod.*;
 import static sida.NSGA.*;
 import static sida.model.finalParameter;
 import static sida.model.finalVariable;
@@ -45,9 +44,22 @@ public class ExperimentTotal {
 
 
     private static int populationSize = 100;
-    private static int maxEvolution = 1000000;
-    private static int finalStateIndex;
+    private static int maxEvolution = 100000;
+
     private static int dataIndex = 55;
+
+    private static int dayFromFirstState = 0;
+    private static int daysFirstState = 8;
+
+    private static int dayFromSecondState = dayFromFirstState + daysFirstState;
+    private static int daysSecondState;
+
+    private static int daysFromFinalState;
+    private static int daysFinalState = 21;//11;
+
+    //private static int firstStateIndex = 8;
+    //
+    //private static int daysFinalState = 4;
 
     private static String linkData = "/home/ubuntu/sidarthe/country/";
 
@@ -57,7 +69,7 @@ public class ExperimentTotal {
        List<String> algorithms = new ArrayList<>();
        countries.add("kaz");
        algorithms.add("NSGAS");
-       for(int i = 0; i < 2; i++) {
+       for(int i = 0; i < 20; i++) {
            runExperiment(countries, algorithms, populationSize, maxEvolution);
        }
     }
@@ -101,8 +113,8 @@ public class ExperimentTotal {
         ///////// Read data from file
         //List<List<String>> data = readData("kaz", "data/owid-covid-data.csv");
         List<String[]> data = readData("kaz");
-        List<String> variables = new ArrayList<>();
-        variables.add("total");
+        //List<String> variables = new ArrayList<>();
+        //variables.add("total");
         List<List<Double>> infoData = getData2(data);
         storeInfo(infoData,country);
         //double[] totalCasePerMillionn = getInfo(data.get(0).get(newDeathsIndex+1),data);
@@ -112,12 +124,10 @@ public class ExperimentTotal {
         printListDouble(infoData.get(totalCaseIndex));//"data/time_series_covid19_confirmed_global.csv";
         printListDouble(infoData.get(deathsIndex));//"data/time_series_covid19_deaths_global.csv";
         printListDouble(infoData.get(recoveredIndex));//"data/time_series_covid19_recovered_global.csv";
-        //printListDouble(infoData.get(positiveIndex));
+        System.out.println("The size of data is "+ infoData.get(0).size());
 
         /////////////////////// Setup data from the first step
         double stepUnit = 0.01;
-        int days = 8;
-        int dayFrom = 0;
         List<Double> RLimit = new ArrayList<>();
         RLimit.add(3.0);
         RLimit.add(3.0);
@@ -126,30 +136,30 @@ public class ExperimentTotal {
         List<Double> variablesInit = model.initVariables(population);
 
         ///////////////////////
-        ////////////////// State 1 /////////////////////////////////////////////////////
+        ////////////////// State 1 ///////////////////////////////////////////////////// 1
         List<Double> bestParameters = stateFirst4Objectives(populationSize, maxEvolution, algorithm,
-                stepUnit, days, dayFrom,
+                stepUnit, daysFirstState, dayFromFirstState,
                 variablesInit, realValues,
                 parameterInit, RLimit,
                 country);
         //////// Estimate state 1
-        int steps = (int) (days/stepUnit);
+        int steps = (int) (daysFirstState/stepUnit);
         List<List<Double>> Variables = estimateStateFirst(variablesInit, steps, bestParameters, stepUnit);
         ////// Display state 1
-        displayStateFirst(Variables, steps, dayFrom, days, realValues);
-        /////////////////// State 2 /////////////////////////////////////////////////////
-        dayFrom = dayFrom + days; // From dayFrom = 8
-        finalStateIndex = 52;
-        days = finalStateIndex - days; // number of days is 45
+        displayStateFirst(Variables, steps, dayFromFirstState, daysFirstState, realValues);
+        /////////////////// State 2 ///////////////////////////////////////////////////// 1 + 42
+        int dayFrom = dayFromSecondState;
+        daysFromFinalState = realValues.size() - daysFinalState;
+        int days = daysFromFinalState - dayFromSecondState; // number of days is 50 - 8 = 42
+        System.out.println("The number of parameters is "+ days);
         List<List<Double>> listBestParameter = createListParemeter(bestParameters);
         stateTwo4Objects(populationSize, maxEvolution, algorithm,
                 stepUnit, days, dayFrom, Variables, realValues,
                 listBestParameter, RLimit);
-        /////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////// 1 + 42 + 1
         ///State Final
-
-        dayFrom = dayFrom + days; // From dayFrom = 8 + 45 = 53
-        days = infoData.get(0).size() - finalStateIndex; // 55 - 52 = 3
+        dayFrom = daysFromFinalState; // From dayFrom = 8 + 42 = 50
+        days = daysFinalState;//infoData.get(0).size() - daysFromFinalState; // 55 - 50 = 5
         System.out.println("The size of data is "+ infoData.get(0).size() + "the day in final state is " + days);
         List<List<Double>> finalParameter = createFinalListParemeter(listBestParameter);
         List<Double> init = finalVariable(Variables);
@@ -160,7 +170,7 @@ public class ExperimentTotal {
                 init, realValues, initP, RLimit);
         finalParameter.add(parameter);
         listBestParameter.add(parameter);
-        /////////Estimate state final
+        /////////Estimate state final////////////////////////////////////////////////////
         steps = (int) (days/stepUnit);
         steps = steps + 1;
         List<Double> variablesInitFinal = finalVariable(Variables);
@@ -168,7 +178,7 @@ public class ExperimentTotal {
         VariablesFinal.remove(0);
 
         //////////////////
-        listBestParameter.add(finalParameter());
+        listBestParameter.add(finalParameter());///////////////////////////////////////// 1 + 42 + 1 + 1 = 45
         updateParameterAll(listBestParameter);
         //////////////////////////////////////////////////////
         storeAll(listBestParameter, populationSize, maxEvolution, country, algorithm);
@@ -188,18 +198,24 @@ public class ExperimentTotal {
         //String currentPath = path.toString();
         String directory = sidarFolder +"/" + nameFolder + "_"+algorithm+"_P_"+populationSize+"_Evolution_"+maxEvolution;
         String name = "setParameterDayAll.m";
+        String setDate = "setDate.m";
         utils.updateParameterAll(directory, name, listBestParameter);
+        utils.updateFinalDateAlgorithm(directory, setDate, daysFirstState, listBestParameter);
         ////////////////// Main simulation
         if (listBestParameter.size()<49){
             storeMFile49(sidarFolder,directory,49);
+            prepareRun(sidarFolder, directory, 49);
         }
-        else storeMFile54(sidarFolder,directory,54);
-        //storeMFile39(sidarFolder,directory);
+        else {
+            storeMFile54(sidarFolder,directory,54);
+            prepareRun(sidarFolder, directory, 54);
+        }
+        //runScript(sidarFolder,directory);
         ///////////////////////////////////////////////////////////////
         String MOEAfoler = path.toString();
         directory = MOEAfoler;
         utils.updateParameterAll(directory, name, listBestParameter);
-        //runScript(sidarFolder,directory);
+        utils.updateFinalDateAlgorithm(directory, setDate, daysFirstState, listBestParameter);
         ///////////////////////////////////////////////////////////////
     }
     public static List<Double> stateFirst4Objectives (int populationSize, int maxEvolution, String algorithm,
@@ -442,6 +458,7 @@ public class ExperimentTotal {
         }
         return initValues;
     }
+
     public static void updateParameterAll(List<List<Double>> bestParameters){
         String link = linkData+"setParameterDayAll.m";
         String outPut = "function [alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(i)";
@@ -547,6 +564,8 @@ public class ExperimentTotal {
         listFile.add("totalCase.m");
         listFile.add("totalDeath.m");
         listFile.add("totalRecovered.m");
+        listFile.add("Figure12.m");
+        listFile.add("Figure310.m");
         return listFile;
     }
     public static void storeMFile49 (String sidarFolder, String directory, int code){
@@ -567,6 +586,20 @@ public class ExperimentTotal {
             String sidarSimulationLinkStore = directory + "/" +sidarSimulationName;
             String sidarSimulationContent = utils.readFile(sidarSimulationLink);
             sida.utils.writeFile.writeString(sidarSimulationLinkStore,sidarSimulationContent);
+        }
+    }
+    public static void prepareRun(String sidarFolder, String directory, int code){
+        List<String> listFile = prepareListFile(code);
+        String mainFile = "Sidarthe_Simulation_Dung"+code+".m";
+        String runFile = "run.m";
+        for (int i = 0; i < listFile.size(); i++){
+            if (listFile.get(i).contains(mainFile)){
+                String sidarSimulationName = mainFile;
+                String sidarSimulationLink = sidarFolder + "/" +sidarSimulationName;
+                String sidarSimulationContent = utils.readFile(sidarSimulationLink) + "\n" + "exit";
+                String sidarSimulationLinkStore = directory + "/" +runFile;
+                sida.utils.writeFile.writeString(sidarSimulationLinkStore,sidarSimulationContent);
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import static org.apache.commons.math3.util.Precision.round;
 
 public class utils {
+    private static String NewLine = "\n";
     public static void updateParameterAll(String directory, String name, List<List<Double>> bestParameters){
         String link = directory + "/" + name;
         System.out.println("The file is store at: "+ link);
@@ -58,6 +59,41 @@ public class utils {
         outPut = outPut + "kappa=MatrixParameter(i,14);"+"\n";
         outPut = outPut + "xi=MatrixParameter(i,15);"+"\n";
         outPut = outPut + "sigma=MatrixParameter(i,16);"+"\n";
+        outPut = outPut + "end";
+        Path filePath = Paths.get(link);
+        if(Files.exists(filePath)){
+            System.out.println("The file is already exist");
+            try {
+                Files.delete(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (!Files.exists(filePath)) {
+            try {
+                Files.createFile(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        writeFile.writeString(link,outPut);
+    }
+    public static void updateFinalDateAlgorithm(String directory, String name, int firstStateIndex, List<List<Double>> bestParameters){
+        String link = directory + "/" + name;
+        System.out.println("The file is store at: "+ link);
+        Path directoryPath = Paths.get(directory);
+        if(!Files.exists(directoryPath)) {
+            try {
+                Files.createDirectory(directoryPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        int finalStateIndex = firstStateIndex + bestParameters.size();
+        String outPut = "function [startDate stopDate] = setDate()";
+        outPut = outPut + NewLine;
+        outPut = outPut + "startDate = " + firstStateIndex + NewLine;
+        outPut = outPut + "stopDate = " + finalStateIndex + NewLine;
         outPut = outPut + "end";
         Path filePath = Paths.get(link);
         if(Files.exists(filePath)){

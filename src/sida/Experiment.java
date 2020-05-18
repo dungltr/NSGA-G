@@ -61,15 +61,17 @@ public class Experiment {
     public static int day50 = day38 + 12;
 
     public static void main(String[] args){
-        int populationSize = 1000;
-        int maxEvolution = 1000;
+        int populationSize = 100;
+        int maxEvolution = 2000000;
         List<String> algorithms = new ArrayList<>();
         algorithms.add("NSGAII");
         algorithms.add("NSGAIII");
         algorithms.add("NSGAS");
         algorithms.add("MOEAD");
         algorithms.add("eMOEA");
-        experiment1(populationSize, maxEvolution, algorithms.get(2));
+        for (int i = 0; i < 10; i++) {
+            experiment1(populationSize, maxEvolution, algorithms.get(2));
+        }
     }
     public static List<Double> stateFirst (int populationSize, int maxEvolution, String algorithm,
                                            double stepUnit, int days, int dayFrom,
@@ -308,7 +310,7 @@ public class Experiment {
          */
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         dayFrom = dayFrom + days; // From dayFrom = 3
-        days = CasiTotali.length - days - 1;
+        days = CasiTotali.length - days - 1;// 46 - 3 - 1 = 42
         List<List<Double>> listBestParameter = createListParemeter(bestParameters);
         stateTwo(populationSize, maxEvolution, algorithm,
                 stepUnit, days, dayFrom, Variables, realValues,

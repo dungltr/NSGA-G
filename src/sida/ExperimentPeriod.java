@@ -17,20 +17,24 @@ import static sida.model.finalVariable;
 
 public class ExperimentPeriod {
     private static String dateForm = "yyyy_MM_dd_HH_mm_ss";
-    private static int populationSize = 100;
+    private static int daysFirstState = 3;
+    private static int populationSize = 1000;
     private static int maxEvolution = 1000000;
-    private static int finalStateIndex = 38;
+    private static int finalStateIndex = 43;//45;///38;
     public static void main(String[] args){
         List<String> algorithms = new ArrayList<>();
         algorithms.add("NSGAS");
-        algorithms.add("NSGAII");
+        //algorithms.add("NSGAII");
         //algorithms.add("NSGAG");
         //algorithms.add("NSGAR");
 
         //algorithms.add("NSGAIV");
         //algorithms.add("NSGAIII");
         System.out.println("Hello");
-        for (int k = 0; k < 5; k++){
+        for (int k = 0; k < 10; k++){
+            System.out.println("Experiment with population"+ populationSize + " and maxEvolution " + maxEvolution);
+            experimentPeriod(populationSize, maxEvolution, algorithms.get(0));
+            /*
             for (int i = 100; i < 10000; i= i*10){
                 for (int j = 0; j < algorithms.size(); j++) {
                     System.out.println("Experiment with population"+ i + " and maxEvolution " + maxEvolution);
@@ -38,6 +42,8 @@ public class ExperimentPeriod {
                     //experiment1(i, maxEvolution, algorithms.get(j));
                 }
             }
+
+             */
         }
 
         //storeAll();
@@ -53,7 +59,7 @@ public class ExperimentPeriod {
         List<List<Double>> realValues = initRealValues(population);
         List<Double> parameterInit = model.initParameter();
         List<Double> variablesInit = model.initVariables(population);
-        ////////////////// State 1 /////////////////////////////////////////////////////
+        ////////////////// State 1 ///////////////////////////////////////////////////// 1
         List<Double> bestParameters = stateFirst(populationSize, maxEvolution, algorithm,
                 stepUnit, days, dayFrom,
                 variablesInit, realValues, parameterInit, RLimit);
@@ -64,10 +70,10 @@ public class ExperimentPeriod {
         displayStateFirst(Variables, steps, dayFrom, days, realValues);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // State 2
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 1 + 41(25/35) = 42(26/36)
         dayFrom = dayFrom + days; // From dayFrom = 3
-        finalStateIndex = 38;
-        days = finalStateIndex - days; // number of days is 35
+        //finalStateIndex = 38;
+        days = finalStateIndex - days; // number of days is 44(28/38) - 3 = 41(25/35)
         List<List<Double>> listBestParameter = createListParemeter(bestParameters);
         stateTwo(populationSize, maxEvolution, algorithm,
                 stepUnit, days, dayFrom, Variables, realValues,
@@ -75,9 +81,9 @@ public class ExperimentPeriod {
         //
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // State final
-        ///////////////////////////////////////////////////////
-        dayFrom = dayFrom + days; // From dayFrom = 3 + 35 = 38
-        days = CasiTotali.length - finalStateIndex; // 46 - 38 = 8
+        /////////////////////////////////////////////////////// 42(26/36) + 1 = 43(27/37)
+        dayFrom = dayFrom + days; // From dayFrom = 3 + 41(25/35) = 44(28/38)
+        days = CasiTotali.length - finalStateIndex; // 46 - 44(28/38) = 2(18/12)
         //days = 2;
         List<List<Double>> finalParameter = createFinalListParemeter(listBestParameter);
         List<Double> init = finalVariable(Variables);
@@ -94,11 +100,13 @@ public class ExperimentPeriod {
         List<Double> variablesInitFinal = finalVariable(Variables);
         List<List<Double>> VariablesFinal = estimateStateFirst(variablesInitFinal, steps, parameter, stepUnit);
         VariablesFinal.remove(0);
-        //////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////// 43(27/37) + 1 = 44(28/38)
         listBestParameter.add(finalParameter());
         updateParameterAll(listBestParameter);
         //////////////////////////////////////////////////////
+        String country = "ita";
         storeAll(listBestParameter, populationSize, maxEvolution, algorithm);
+        //storeAll(listBestParameter, populationSize, maxEvolution, "ita",algorithm);
         System.out.println("Exits");
     }
     public static void storeAll(List<List<Double>> listBestParameter, int populationSize, int maxEvolution, String algorithm){
@@ -113,7 +121,9 @@ public class ExperimentPeriod {
         //String currentPath = path.toString();
         String directory = sidarFolder +"/" + nameFolder + "_"+algorithm+"_P_"+populationSize+"_Evolution_"+maxEvolution;
         String name = "setParameterDayAll.m";
+        String setDate = "setDate.m";
         utils.updateParameterAll(directory, name, listBestParameter);
+        utils.updateFinalDateAlgorithm(directory, setDate, daysFirstState, listBestParameter);
         ////////////////// Main simulation
         if (listBestParameter.size()<42){
             storeMFile39(sidarFolder,directory);
@@ -125,7 +135,7 @@ public class ExperimentPeriod {
         directory = MOEAfoler;
         utils.updateParameterAll(directory, name, listBestParameter);
         storeMFile39(sidarFolder,directory);
-        runScript(sidarFolder,directory);
+        //runScript(sidarFolder,directory);
         ///////////////////////////////////////////////////////////////
     }
     public static void storeMFile39 (String sidarFolder, String directory){

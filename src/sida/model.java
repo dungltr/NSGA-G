@@ -287,6 +287,13 @@ public class model {
         }
         return values;
     }
+    public static List<Double> indexVariable (List<List<Double>> variables, int index) {
+        List<Double> values = new ArrayList<>();
+        for (int i = 0; i < variables.get(0).size(); i++){
+            values.add(variables.get(index).get(i));
+        }
+        return values;
+    }
     public static List<Double> deltaVariables (double[][] B, List<Double> lastVariables){
         List<Double> nextValues = new ArrayList<>();
         if (B[0].length == lastVariables.size()){
