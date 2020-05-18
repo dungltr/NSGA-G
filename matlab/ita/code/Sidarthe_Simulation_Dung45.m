@@ -109,6 +109,7 @@ x=[S(1);I(1);D(1);A(1);R(1);T(1);H(1);E(1);H_diagnosticati(1);Infetti_reali(1)];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIMULATION
+[startDate stopDate] = setDate();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % "Control" binary variables to compute the new R0 every time a policy has
@@ -120,15 +121,15 @@ plottato_tris = 0;
 plottato_quat = 0;
 
 for i=2:length(t)
-    if (i > 3/step)
+    if (i > startDate/step)
       if (i < 4/step)
         [alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(2);
       end
     end
     if (i > 4/step)
-      if (i < 45/step)
+      if (i < (stopDate-2)/step)
         l = i * step;
-        k = ceil (l) - 2;
+        k = ceil (l) - startDate + 1;
        [alfa, beta, gamma, delta, epsilon, theta, zeta, eta, mu, nu, tau, lambda, rho, kappa, xi, sigma] = setParameterDayAll(k);
       end
     end
@@ -239,280 +240,7 @@ Pbar1=Ebar/((epsilon*r3+(theta+mu)*zeta)*(I(1)+S(1)-Sbar-Ibar)/(r1*r3)+(theta+mu
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FIGURES 1-10
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 1 %%%% PanoramicaEpidemiaRealevsPercepita.pdf
-
-figure
-plot(t,Infetti_reali,'b',t,I+D+A+R+T,'r',t,H,'g',t,E,'k')
-hold on
-plot(t,D+R+T+E+H_diagnosticati,'--b',t,D+R+T,'--r',t,H_diagnosticati,'--g')
-xlim([t(1) t(end)])
-ylim([0 0.015])
-axis 'auto y'
-title('Actual vs. Diagnosed Epidemic Evolution')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-legend({'Cumulative Infected','Current Total Infected', 'Recovered', 'Deaths','Diagnosed Cumulative Infected','Diagnosed Current Total Infected', 'Diagnosed Recovered'},'Location','northwest')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 24 16]);
-    set(gcf, 'PaperSize', [24 16]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['PanoramicaEpidemiaRealevsPercepita.pdf'])
-    %print -djpg PanoramicaEpidemiaRealevsPercepitaF1.jpg
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 2 %%%% SuddivisioneInfetti.pdf
-
-
-figure
-plot(t,I,'b',t,D,'c',t,A,'g',t,R,'m',t,T,'r')
-xlim([t(1) t(end)])
-ylim([0 1.1e-3])
-axis 'auto y'
-%title('Infected, different stages, Diagnosed vs. Non Diagnosed')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-legend({'Infected ND AS', 'Infected D AS', 'Infected ND S', 'Infected D S', 'Infected D IC'},'Location','northeast')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 24 16]);
-    set(gcf, 'PaperSize', [24 16]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['SuddivisioneInfetti.pdf'])
-    %print -djpg SuddivisioneInfettiF2.jpg
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 3
-
-Figure3 = D+R+T+E+H_diagnosticati;
-error3 = 0;
-for r = 3:46
-    error3 = error3 + (Figure3(r*100) - CasiTotali(r))*(Figure3(r*100) - CasiTotali(r));
-end
-SQE3 = 1.0273e-07
-error3
-%%%%%%%%%%%%%
-figure
-plot(t,D+R+T+E+H_diagnosticati)
-hold on
-stem(t(1:1/step:size(CasiTotali,2)/step),CasiTotali)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Cumulative Diagnosed Cases: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['CasiTotali.pdf'])
-    %print -djpg CasiTotaliF3.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 4
-Figure4 = H_diagnosticati;
-error4 = 0;
-for r = 3:46
-    error4 = error4 + (Figure4(r*100) - Guariti(r))*(Figure4(r*100) - Guariti(r));
-end
-SQE4 = 5.5446e-08
-error4
-figure
-plot(t,H_diagnosticati)
-hold on
-stem(t(1:1/step:size(CasiTotali,2)/step),Guariti)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Recovered: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the pop%Ơation)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['Guariti_diagnosticati.pdf'])
-    %print -djpg Guariti_diagnosticatiF4.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 5
-Figure5 = E;
-error5 = 0;
-for r = 3:46
-    error5 = error5 + (Figure5(r*100) - Deceduti(r))*(Figure5(r*100) - Deceduti(r));
-end
-SQE5 = 4.9117e-07
-error5
-figure
-plot(t,E)
-hold on
-stem(t(1:1/step:size(CasiTotali,2)/step),Deceduti)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Deaths: Model vs. Data - NOTE: EXCLUDED FROM FITTING')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['Morti.pdf'])
-    %print -djpg MortiF5.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 6
-Figure6 = D+R+T;
-error6 = 0;
-for r = 3:46
-    error6 = error6 + (Figure6(r*100) - Positivi(r))*(Figure6(r*100) - Positivi(r));
-end
-SQE6 = 3.9855e-07
-error6
-figure
-plot(t,D+R+T)
-hold on
-stem(t(1:1/step:size(CasiTotali,2)/step),Positivi)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Infected: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['Positivi_diagnosticati.pdf'])
-    %print -djpg Positivi_diagnosticatiF6.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 7
-Figure7 = D;
-error7 = 0;
-for r = 4:46
-    error7 = error7 + (Figure7(r*100) - Isolamento_domiciliare(r-3))*(Figure7(r*100) - Isolamento_domiciliare(r-3));
-end
-SQE7 = 2.5683e-07
-error7
-figure
-plot(t,D)
-hold on
-stem(t(1+3/step:1/step:1+(size(Ricoverati_sintomi,2)+2)/step),Isolamento_domiciliare)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Infected, No Symptoms: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['InfettiAsintomatici_diagnosticati.pdf'])
-    %print -djpg InfettiAsintomatici_diagnosticatiF7.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 8
-Figure8 = R;
-error8 = 0;
-for r = 4:46
-    error8 = error8 + (Figure8(r*100) - Ricoverati_sintomi(r-3))*(Figure8(r*100) - Ricoverati_sintomi(r-3));
-end
-SQE8 = 3.2662e-08
-error8
-figure
-plot(t,R)
-hold on
-stem(t(1+3/step:1/step:1+(size(Ricoverati_sintomi,2)+2)/step),Ricoverati_sintomi)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Infected, Symptoms: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_ricoverati.pdf'])
-    %print -djpg InfettiSintomatici_diagnosticati_ricoveratiF8.jpg
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 9
-Figure9 = D+R;
-IsoRic = Isolamento_domiciliare+Ricoverati_sintomi;
-error9 = 0;
-for r = 4:46
-    error9 = error9 + (Figure9(r*100) - IsoRic(r-3))*(Figure9(r*100) - IsoRic(r-3));
-end
-SQE9 = 3.3180e-07
-error9
-figure
-plot(t,D+R)
-hold on
-stem(t(1+3/step:1/step:1+(size(Ricoverati_sintomi,2)+2)/step),Isolamento_domiciliare+Ricoverati_sintomi)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Infected, No or Mild Symptoms: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['InfettiNonGravi_diagnosticati.pdf'])
-    %print -djpg InfettiNonGravi_diagnosticatiF9.jpg
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Figure 10
-Figure10 = T;
-error10 = 0;
-for r = 4:46
-    error10 = error10 + (Figure10(r*100) - Terapia_intensiva(r-3))*(Figure10(r*100) - Terapia_intensiva(r-3));
-end
-SQE10 = 1.2493e-08
-error10
-figure
-plot(t,T)
-hold on
-stem(t(1+3/step:1/step:1+(size(Ricoverati_sintomi,2)+2)/step),Terapia_intensiva)
-xlim([t(1) t(end)])
-ylim([0 2.5e-3])
-axis 'auto y'
-title('Infected, Life-Threatening Symptoms: Model vs. Data')
-xlabel('Time (days)')
-ylabel('Cases (fraction of the population)')
-grid
-
-if plotPDF==1
-    set(gcf, 'PaperUnits', 'centimeters');
-    set(gcf, 'PaperPosition', [0 0 16 10]);
-    set(gcf, 'PaperSize', [16 10]); % dimension on x axis and y axis resp.
-    print(gcf,'-dpdf', ['InfettiSintomatici_diagnosticati_terapiaintensiva.pdf'])
-    %print -djpg InfettiSintomatici_diagnosticati_terapiaintensivaF10.jpg
-end
+Figure12
+Figure310
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
