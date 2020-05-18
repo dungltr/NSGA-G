@@ -8,8 +8,8 @@ The data is taken from the website[5].
 1. With Italia: src/sida/ExperiementPeriod.java
 2. With kazakhstan: src/sida/ExperimentTotal.java
 # Simualtion: 
-1. Italia: matlab/ita/2020_05_05_14_22_49_NSGAS_P_100_Evolution_1000000/Sidarthe_Simulation_Dung45.m
-2. Kazakhstan: matlab/kaz/2020_05_11_00_23_50_NSGAS_P_100_Evolution_1000000/Sidarthe_Simulation_Dung39.m
+1. Italia: matlab/ita/code/Sidarthe_Simulation_Dung45.m
+2. Kazakhstan: matlab/kaz/code/Sidarthe_Simulation_Dung39.m
 # Caution
 1. These code are using to publish into a journal. Hence, you are not allowed to reuse them to publish to anywhere.
 2. You are ot allowed to commercialize or monetize this code in any form.
