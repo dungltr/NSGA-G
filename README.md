@@ -1,5 +1,5 @@
 # Applying NSGA-G[2,3] to estimate parameters in SIDARTHE[1] model for COVID-19
-It is an application of NSGA-G for the problem which has entire data or lack data of variables in SIDARTHE.
+It is an application of NSGA-G algorithm for the problem which has entire data or lack data of variables in SIDARTHE.
 # Using:
 NSGA-G should be use and complied with MOEA framework[4]
 # Data:
